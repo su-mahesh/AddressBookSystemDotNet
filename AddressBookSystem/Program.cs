@@ -3,43 +3,64 @@ using System.Collections.Generic;
 
 namespace AddressBookSystem
 {
-    class AddressBook
+    class AddressBookSystem
     {
-        Dictionary<String, String> ContactField = new Dictionary<string, string>();
+        Dictionary<String, String> Contact; 
+        Dictionary<String, Dictionary<String, String>> AddressBook = new Dictionary<string, Dictionary<String, String>>();
         private void AddContact()
         {
+            Contact = new Dictionary<string, string>();
+
             Console.WriteLine("First Name:");
-            ContactField.Add("First Name", Console.ReadLine());
+            Contact.Add("First Name", Console.ReadLine());
 
             Console.WriteLine("Last Name:");
-            ContactField.Add("Last Name", Console.ReadLine());
+            Contact.Add("Last Name", Console.ReadLine());
 
             Console.WriteLine("Address:");
-            ContactField.Add("Address", Console.ReadLine());
+            Contact.Add("Address", Console.ReadLine());
 
             Console.WriteLine("City:");
-            ContactField.Add("City", Console.ReadLine());
+            Contact.Add("City", Console.ReadLine());
 
             Console.WriteLine("State:");
-            ContactField.Add("State", Console.ReadLine());
+            Contact.Add("State", Console.ReadLine());
 
             Console.WriteLine("Zip:");
-            ContactField.Add("Zip", Console.ReadLine());
+            Contact.Add("Zip", Console.ReadLine());
 
             Console.WriteLine("Phone number:");
-            ContactField.Add("Phone number", Console.ReadLine());
+            Contact.Add("Phone number", Console.ReadLine());
 
             Console.WriteLine("Email:");
-            ContactField.Add("Email", Console.ReadLine());
+            Contact.Add("Email", Console.ReadLine());
+            Contact.TryGetValue("First Name", out String Name);
+            AddressBook.Add(Name, Contact);
+            Console.WriteLine("contact added\n");
         }
 
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Address Book Program");
-            AddressBook addressBook = new AddressBook();
-            addressBook.AddContact();
+            AddressBookSystem addressBook = new AddressBookSystem();
+
+            while (true)
+            {
+                Console.WriteLine("***** menu *****");
+                Console.WriteLine("1. add contact ");
+                try
+                {
+                    switch (Convert.ToInt32(Console.ReadLine()))
+                    {
+                        case 1:
+                            addressBook.AddContact();
+                            break;
+                    }
+                }
+                catch (Exception) {
+                    Console.WriteLine("wrong input");
+                }                              
+            }            
         }
-
-
     }
 }
