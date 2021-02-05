@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AddressBookSystem
 {
@@ -48,6 +49,7 @@ namespace AddressBookSystem
             {
                 Contact = new Dictionary<string, string>();
                 AddressBook.TryGetValue(ContactName, out Contact);
+
                 Console.WriteLine("First Name: " + Contact["First Name"]);
 
                 Console.WriteLine("Last Name:" + Contact["Last Name"]);
@@ -86,7 +88,9 @@ namespace AddressBookSystem
                 switch (Choice)
                 {
                     case 1:
+                        
                         AddressBook[ContactName]["First Name"] = CotanctField;
+                        
                         break;
                     case 2:
                         AddressBook[ContactName]["Last Name"] = CotanctField;
