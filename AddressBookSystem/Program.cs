@@ -113,7 +113,18 @@ namespace AddressBookSystem
             }
             else
                 Console.WriteLine("contact doesn't exist");
-
+        }
+        private void DeleteContact()
+        {
+            Console.WriteLine("Enter contact name:");
+            String ContactName = Console.ReadLine();
+            if (AddressBook.ContainsKey(ContactName))
+            {
+                AddressBook.Remove(ContactName);
+                Console.WriteLine("contact removed");
+            }
+            else
+                Console.WriteLine("contact doesn't exist");
         }
         static void Main(string[] args)
         {
@@ -122,9 +133,9 @@ namespace AddressBookSystem
 
             while (true)
             {
-                Console.WriteLine("\n***** menu *****");
+                Console.WriteLine("\n***** MENU *****");
                 Console.WriteLine("1. add contact   2. edit contact");
-                Console.WriteLine("3. view contact");
+                Console.WriteLine("3. view contact  4. delete contact");
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -138,16 +149,15 @@ namespace AddressBookSystem
                         case 3:
                             addressBook.ViewContact();
                             break;
+                        case 4:
+                            addressBook.DeleteContact();
+                            break;
                     }
                 }
                 catch (Exception) {
                     Console.WriteLine("wrong input");
                 }                              
             }            
-        }
-
-        
-
-   
+        }  
     }
 }
