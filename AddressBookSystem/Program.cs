@@ -8,6 +8,9 @@ namespace AddressBookSystem
     {
         Dictionary<String, String> Contact;
         Dictionary<String, Dictionary<String, String>> AddressBook;
+        Dictionary<String, List<Dictionary<String, String>>> CityAddressBook = new Dictionary<String, List<Dictionary<String, String>>>();
+        Dictionary<String, List<Dictionary<String, String>>> StateAddressBook = new Dictionary<String, List<Dictionary<String, String>>>();
+        List<Dictionary<String, String>> ContactList;
         Dictionary<String, Dictionary<String, Dictionary<String, String>>> AddressBookCollection = new Dictionary<string, Dictionary<String, Dictionary<String, String>>>();
         String CurrentAddressBookName = "default";
         public AddressBookSystem()
@@ -46,13 +49,34 @@ namespace AddressBookSystem
 
             Contact.TryGetValue("First Name", out String FirstName);
             Contact.TryGetValue("Last Name", out String LastName);
-           
+            Contact.TryGetValue("City", out String City);
+            Contact.TryGetValue("State", out String State);
+            string FullName = FirstName + " " + LastName;
 
-            if (AddressBookCollection[CurrentAddressBookName].ContainsKey(FirstName+" "+ LastName))
+            if (AddressBookCollection[CurrentAddressBookName].ContainsKey(FullName))
                     Console.WriteLine("contact already exist");
             else
-            {
-                AddressBookCollection[CurrentAddressBookName].Add(FirstName + " " + LastName, Contact);
+            {                
+                AddressBookCollection[CurrentAddressBookName].Add(FullName, Contact);
+                if (!CityAddressBook.ContainsKey(City))
+                {
+                    ContactList = new List<Dictionary<String, String>>() { Contact };
+                    CityAddressBook.Add(City, ContactList);
+                }                   
+                else
+                {
+                    CityAddressBook[City].Add(Contact);
+                }
+
+                if (!StateAddressBook.ContainsKey(State))
+                {
+                    ContactList = new List<Dictionary<String, String>>() { Contact };
+                    StateAddressBook.Add(State, ContactList);
+                }
+                else
+                {
+                    StateAddressBook[State].Add(Contact);
+                }
                 Console.WriteLine("contact added\n");
             }                
         }
@@ -82,7 +106,6 @@ namespace AddressBookSystem
             String ContactName = Console.ReadLine();
             if (AddressBookCollection[CurrentAddressBookName].ContainsKey(ContactName))
             {
-               // Contact = new Dictionary<string, string>();
                 Contact = AddressBookCollection[CurrentAddressBookName][ContactName];
                 ShowContact(Contact);
             }
@@ -152,13 +175,37 @@ namespace AddressBookSystem
         {
             Console.WriteLine("Enter contact name:");
             String ContactName = Console.ReadLine();
-            if (AddressBook.ContainsKey(ContactName))
+           
+            try
             {
-                AddressBook.Remove(ContactName);
-                Console.WriteLine("contact removed");
+                if (AddressBook.ContainsKey(ContactName))
+                {
+                    Contact = AddressBook[ContactName];
+                    AddressBook.Remove(ContactName);
+                    string City = Contact["City"];
+                    string State = Contact["State"];
+                    CityAddressBook[City].Remove(Contact);
+                    StateAddressBook[State].Remove(Contact);
+                    if (CityAddressBook[City].Count().Equals(0))
+                    {
+                        CityAddressBook.Remove(City);
+                    }
+                    if (StateAddressBook[State].Count().Equals(0))
+                    {
+                        StateAddressBook.Remove(State);
+                    }
+
+                    Console.WriteLine("contact removed");
+                }
+                else
+                    Console.WriteLine("contact doesn't exist");
+
             }
-            else
-                Console.WriteLine("contact doesn't exist");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
         }
         private void CreateAddressBook()
         {
@@ -186,53 +233,45 @@ namespace AddressBookSystem
             else
                 Console.WriteLine("address book doesn't exist");
         }
-        static void Main(string[] args)
+
+        public void ViewPersons()
         {
-            Console.WriteLine("Welcome to Address Book Program");
-            AddressBookSystem AddressBookManager = new AddressBookSystem();
-
-            while (true)
+            Console.WriteLine("1. by city  2. by state");
+            int Choice = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("enter field: ");
+            string Field = Console.ReadLine();
+            int ContactNumber = 0;
+            try
             {
-                Console.WriteLine("\n******************** MENU *******************");
-                Console.WriteLine("************ AddressBook: " + AddressBookManager.CurrentAddressBookName + " ***********");
-
-                Console.WriteLine("1. add contact         2. edit contact");
-                Console.WriteLine("3. view contact        4. delete contact");
-                Console.WriteLine("5. create address book 6. change address book");
-                Console.WriteLine("7. search person");
-                try
+                switch (Choice)
                 {
-                    switch (Convert.ToInt32(Console.ReadLine()))
-                    {
-                        case 1:
-                            AddressBookManager.AddContact();
-                            break;
-                        case 2:
-                            AddressBookManager.EditContactDetails();
-                            break;
-                        case 3:
-                            AddressBookManager.ViewContact();
-                            break;
-                        case 4:
-                            AddressBookManager.DeleteContact();
-                            break;
-                        case 5: AddressBookManager.CreateAddressBook();
-                            break;
-                        case 6: AddressBookManager.ChangeAddressBook();
-                            break;
-                        case 7:
-                            AddressBookManager.SearchPerson();
-                            break;
-
-                    }
+                    case 1:
+                        foreach (Dictionary<String, String> Contact in CityAddressBook[Field])
+                        {
+                            Console.WriteLine("contact no: " + ++ContactNumber);
+                            ShowContact(Contact);
+                            Console.WriteLine();
+                        }
+                        break;
+                    case 2:
+                        foreach (Dictionary<String, String> Contact in StateAddressBook[Field])
+                        {
+                            Console.WriteLine("contact no: " + ++ContactNumber);
+                            ShowContact(Contact);
+                            Console.WriteLine();
+                        }
+                        break;
                 }
-                catch (Exception) {
-                    Console.WriteLine("wrong input");
-                }                              
-            }            
+            }
+            catch (KeyNotFoundException)
+            {
+                Console.WriteLine("no contact found");
+            }
+           
+
         }
 
-        private void SearchPerson()
+        public void SearchPerson()
         {
             string City = "";
             string State = "";
@@ -252,16 +291,16 @@ namespace AddressBookSystem
                     break;
             }
             int ContactNumber = 0;
-           
+
             foreach (Dictionary<String, Dictionary<String, String>> AddressBook in AddressBookCollection.Values)
             {
                 foreach (Dictionary<String, String> Contact in AddressBook.Values)
                 {
-                    if ((Contact["First Name"]+" "+ Contact["Last Name"]).Equals(PersonName)  && ( Contact["City"].Equals(City) || Contact["State"].Equals(State)))
+                    if ((Contact["First Name"] + " " + Contact["Last Name"]).Equals(PersonName) && (Contact["City"].Equals(City) || Contact["State"].Equals(State)))
                     {
-                        Console.WriteLine("Contact no: "+ ++ContactNumber);
+                        Console.WriteLine("Contact no: " + ++ContactNumber);
                         ShowContact(Contact);
-                        Console.WriteLine();          
+                        Console.WriteLine();
                     }
                 }
             }
@@ -271,5 +310,50 @@ namespace AddressBookSystem
                 Console.WriteLine("no person found");
             }
         }
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Welcome to Address Book Program");
+            AddressBookSystem AddressBookManager = new AddressBookSystem();
+
+            while (true)
+            {
+                Console.WriteLine("\n******************** MENU *******************");
+                Console.WriteLine("************ AddressBook: " + AddressBookManager.CurrentAddressBookName + " ***********");
+
+                Console.WriteLine("1. add contact         2. edit contact");
+                Console.WriteLine("3. view contact        4. delete contact");
+                Console.WriteLine("5. create address book 6. change address book");
+                Console.WriteLine("7. search person       8. view persons");
+                try
+                {
+                    switch (Convert.ToInt32(Console.ReadLine()))
+                    {
+                        case 1: AddressBookManager.AddContact();
+                            break;
+                        case 2: AddressBookManager.EditContactDetails();
+                            break;
+                        case 3: AddressBookManager.ViewContact();
+                            break;
+                        case 4: AddressBookManager.DeleteContact();
+                            break;
+                        case 5: AddressBookManager.CreateAddressBook();
+                            break;
+                        case 6: AddressBookManager.ChangeAddressBook();
+                            break;
+                        case 7: AddressBookManager.SearchPerson();
+                            break;
+                        case 8: AddressBookManager.ViewPersons();
+                            break;
+                        default:
+                            Console.WriteLine("wrong choice");
+                            break;
+                    }
+                }
+                catch (Exception e) {
+                    Console.WriteLine("wrong input"+e);
+                }                              
+            }            
+        }
+
     }
 }
