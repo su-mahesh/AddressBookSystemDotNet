@@ -310,6 +310,35 @@ namespace AddressBookSystem
                 Console.WriteLine("no person found");
             }
         }
+        private void CountContacts()
+        {
+            Console.WriteLine("1. count by city 2. count by state");
+            int Choice = Convert.ToInt32(Console.ReadLine());
+            string field = "";
+            int PersonsCount = 0;
+            try
+            {
+                switch (Choice)
+                {
+                    case 1:
+                        Console.WriteLine("enter city: ");
+                        field = Console.ReadLine();
+                        PersonsCount = CityAddressBook[field].Count;
+                        break;
+                    case 2:
+                        Console.WriteLine("enter city: ");
+                        field = Console.ReadLine();
+                        PersonsCount = StateAddressBook[field].Count;
+                        break;
+                }
+                Console.WriteLine("number of persons in " + field + ": " + PersonsCount);
+            }
+            catch (KeyNotFoundException)
+            {
+                Console.WriteLine("not contacts found");
+            }
+
+        }
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Address Book Program");
@@ -324,6 +353,7 @@ namespace AddressBookSystem
                 Console.WriteLine("3. view contact        4. delete contact");
                 Console.WriteLine("5. create address book 6. change address book");
                 Console.WriteLine("7. search person       8. view persons");
+                Console.WriteLine("9. count contacts");
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -344,16 +374,17 @@ namespace AddressBookSystem
                             break;
                         case 8: AddressBookManager.ViewPersons();
                             break;
+                        case 9: AddressBookManager.CountContacts();
+                            break;
                         default:
                             Console.WriteLine("wrong choice");
                             break;
                     }
                 }
-                catch (Exception e) {
-                    Console.WriteLine("wrong input"+e);
+                catch (Exception) {
+                    Console.WriteLine("wrong input");
                 }                              
             }            
-        }
-
+        }       
     }
 }
