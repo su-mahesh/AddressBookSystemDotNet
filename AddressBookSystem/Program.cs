@@ -187,8 +187,8 @@ namespace AddressBookSystem
 
             while (true)
             {
-                Console.WriteLine("\n***** MENU *****");
-                Console.WriteLine("\n***** AddressBook: " + AddressBookManager.CurrentAddressBookName + " *****");
+                Console.WriteLine("\n******************** MENU *******************");
+                Console.WriteLine("************ AddressBook: " + AddressBookManager.CurrentAddressBookName + " ***********");
 
                 Console.WriteLine("1. add contact         2. edit contact");
                 Console.WriteLine("3. view contact        4. delete contact");
