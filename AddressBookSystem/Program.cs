@@ -7,15 +7,15 @@ namespace AddressBookSystem
     class AddressBookSystem
     {
         Dictionary<String, String> Contact;
-        Dictionary<String, Dictionary<String, String>> AddressBook;
+        SortedDictionary<String, Dictionary<String, String>> AddressBook;
         Dictionary<String, List<Dictionary<String, String>>> CityAddressBook = new Dictionary<String, List<Dictionary<String, String>>>();
         Dictionary<String, List<Dictionary<String, String>>> StateAddressBook = new Dictionary<String, List<Dictionary<String, String>>>();
         List<Dictionary<String, String>> ContactList;
-        Dictionary<String, Dictionary<String, Dictionary<String, String>>> AddressBookCollection = new Dictionary<string, Dictionary<String, Dictionary<String, String>>>();
+        Dictionary<String, SortedDictionary<String, Dictionary<String, String>>> AddressBookCollection = new Dictionary<string, SortedDictionary<String, Dictionary<String, String>>>();
         String CurrentAddressBookName = "default";
         public AddressBookSystem()
         {
-            AddressBook = new Dictionary<string, Dictionary<String, String>>();
+            AddressBook = new SortedDictionary<string, Dictionary<String, String>>();
             AddressBookCollection.Add(CurrentAddressBookName, AddressBook);
         }
 
@@ -209,7 +209,7 @@ namespace AddressBookSystem
         }
         private void CreateAddressBook()
         {
-            AddressBook = new Dictionary<string, Dictionary<String, String>>();
+            AddressBook = new SortedDictionary<string, Dictionary<String, String>>();
             Console.WriteLine("Enter address book name:");
             string AddressBookName = Console.ReadLine();
             if (AddressBookCollection.ContainsKey(AddressBookName))
@@ -292,7 +292,7 @@ namespace AddressBookSystem
             }
             int ContactNumber = 0;
 
-            foreach (Dictionary<String, Dictionary<String, String>> AddressBook in AddressBookCollection.Values)
+            foreach (SortedDictionary<String, Dictionary<String, String>> AddressBook in AddressBookCollection.Values)
             {
                 foreach (Dictionary<String, String> Contact in AddressBook.Values)
                 {
@@ -337,9 +337,23 @@ namespace AddressBookSystem
             {
                 Console.WriteLine("not contacts found");
             }
-
         }
-        static void Main(string[] args)
+        public override string ToString()
+        {
+            string ContactList = "";
+            int number = 1;
+            foreach (var Contacts in AddressBookCollection[CurrentAddressBookName].Values)
+            {
+                ContactList += "contact no: " + number++ + "\n";
+                foreach (var Contact in Contacts)
+                {
+                    ContactList += Contact.Key + ": " + Contact.Value + "\n";
+                }
+                ContactList += "\n";
+            }
+            return ContactList;
+        }
+        static void Main()
         {
             Console.WriteLine("Welcome to Address Book Program");
             AddressBookSystem AddressBookManager = new AddressBookSystem();
@@ -349,11 +363,12 @@ namespace AddressBookSystem
                 Console.WriteLine("\n******************** MENU *******************");
                 Console.WriteLine("************ AddressBook: " + AddressBookManager.CurrentAddressBookName + " ***********");
 
-                Console.WriteLine("1. add contact         2. edit contact");
-                Console.WriteLine("3. view contact        4. delete contact");
-                Console.WriteLine("5. create address book 6. change address book");
-                Console.WriteLine("7. search person       8. view persons");
-                Console.WriteLine("9. count contacts");
+                Console.WriteLine(" 1. add contact         2. edit contact");
+                Console.WriteLine(" 3. view contact        4. delete contact");
+                Console.WriteLine(" 5. create address book 6. change address book");
+                Console.WriteLine(" 7. search person       8. view persons");
+                Console.WriteLine(" 9. count contacts     10. view address book");
+              
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -376,15 +391,15 @@ namespace AddressBookSystem
                             break;
                         case 9: AddressBookManager.CountContacts();
                             break;
-                        default:
-                            Console.WriteLine("wrong choice");
+                        case 10: Console.WriteLine(AddressBookManager);
+                            break;
+                        default: Console.WriteLine("wrong choice");
                             break;
                     }
-                }
-                catch (Exception) {
+                }catch (Exception) {
                     Console.WriteLine("wrong input");
                 }                              
             }            
-        }       
+        }
     }
 }
