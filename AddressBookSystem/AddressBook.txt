@@ -1,0 +1,18 @@
+Address book: default
+
+Contact no: 1
+Address     : tyhty
+City        : tyh
+State       : ht
+Phone number: 66 3333333333
+Email       : grg@rg.rg
+
+Contact no: 2
+First Name  : Mddd
+Last Name   : Kddd
+Address     : kjnk
+City        : rtgrt
+State       : rtgr
+Phone number: 66 3333333333
+Email       : thhyth@rtgrt.rthh
+

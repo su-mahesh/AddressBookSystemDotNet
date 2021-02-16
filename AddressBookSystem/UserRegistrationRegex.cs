@@ -24,6 +24,10 @@ namespace UserRegistrationNameSpace
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_DIGIT_IN_NAME, "first name should not contain digits");
                 if (FirstName.Length < 3)
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_LESSTHAN_MINIMUM_LENGTH, "first name should not be less than minimum length");
+                if (Char.IsLower(FirstName[0]))
+                    throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_FIRST_LETTER_LOWERCASE, "first letter should not be lower case");
+                if (FirstName.Substring(1).Any(Char.IsUpper))
+                    throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE, "other than first letter should not be upper case");
                 return IsValid(FirstNameRegex, FirstName);
 
             }
@@ -42,6 +46,10 @@ namespace UserRegistrationNameSpace
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_DIGIT_IN_NAME, "last name should not contain digits");
                 if (LastName.Length < 3)
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_LESSTHAN_MINIMUM_LENGTH, "last name should not be less than minimum length");
+                if (Char.IsLower(LastName[0]))
+                    throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_FIRST_LETTER_LOWERCASE, "first letter should not be lower case");
+                if (LastName.Substring(1).Any(Char.IsUpper))
+                    throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE, "other than first letter should not be upper case");
                 return IsValid(LastNameRegex, LastName);
             }
             catch (NullReferenceException)

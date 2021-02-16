@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UserRegistrationNameSpace;
 
@@ -19,6 +20,7 @@ namespace AddressBookSystem
         SortedDictionary<string, List<Dictionary<string, string>>> CityAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
         SortedDictionary<string, List<Dictionary<string, string>>> StateAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
         List<Dictionary<string, string>> ContactList;
+        string FileName = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.txt";
         Dictionary<string, SortedDictionary<string, Dictionary<string, string>>> AddressBookCollection = new Dictionary<string, SortedDictionary<string, Dictionary<string, string>>>();
         string CurrentAddressBookName = "default";
         string[] ContactFields = {"First Name", "Last Name", "Address", "City", "State", "Zip", "Phone number", "Email"};
@@ -32,7 +34,7 @@ namespace AddressBookSystem
             AddressBookCollection.Add(CurrentAddressBookName, AddressBook);
         }
         /// <summary>
-        /// Adds the contact.
+        /// Adds new the contact.
         /// </summary>
         private void AddContact()
         {
@@ -72,7 +74,12 @@ namespace AddressBookSystem
                 input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateEmailAddress(input))
                     Contact.Add(ContactFields[7], input);
-                    
+
+                foreach (var CotactField in Contact)
+                {
+                    Console.WriteLine(CotactField.Key.PadRight(12) + ": " + CotactField.Value);
+                }
+
                 Contact.TryGetValue(ContactFields[0], out string FirstName);
                 Contact.TryGetValue(ContactFields[1], out string LastName);
                 Contact.TryGetValue(ContactFields[3], out string City);
@@ -101,7 +108,6 @@ namespace AddressBookSystem
                         StateAddressBook[State].Add(Contact);
 
                     Console.WriteLine("contact added\n");
-
                 }
             }
             catch (Exception e)
@@ -115,12 +121,12 @@ namespace AddressBookSystem
         /// <param name="Contact">The contact.</param>
         void ShowContact(Dictionary<string, string> Contact)
         {
-            Console.WriteLine("First Name: " + Contact[ContactFields[0]]);
-            Console.WriteLine("Last Name:  " + Contact[ContactFields[1]]);
-            Console.WriteLine("Address:    " + Contact[ContactFields[2]]);
-            Console.WriteLine("City:       " + Contact[ContactFields[3]]);
-            Console.WriteLine("State:      " + Contact[ContactFields[4]]);
-            Console.WriteLine("Zip:        " + Contact[ContactFields[5]]);
+            Console.WriteLine("First Name:  " + Contact[ContactFields[0]]);
+            Console.WriteLine("Last Name:   " + Contact[ContactFields[1]]);
+            Console.WriteLine("Address:     " + Contact[ContactFields[2]]);
+            Console.WriteLine("City:        " + Contact[ContactFields[3]]);
+            Console.WriteLine("State:       " + Contact[ContactFields[4]]);
+            Console.WriteLine("Zip:         " + Contact[ContactFields[5]]);
             Console.WriteLine("Phone number:" + Contact[ContactFields[6]]);
             Console.WriteLine("Email:       " + Contact[ContactFields[7]]);
         }
@@ -138,7 +144,6 @@ namespace AddressBookSystem
             }
             else
                 Console.WriteLine("Contact doesn't exist");
-
         }
         /// <summary>
         /// Edits the contact details.
@@ -416,6 +421,72 @@ namespace AddressBookSystem
         /// <summary>
         /// Defines the entry point of the application.
         /// </summary>
+        ///       /// /<summary>
+        /// Sorts the addressbook.                                                                                  
+        /// </summary>
+        private void SortAddressbook()
+        {
+            Console.WriteLine("sort by 1. name 2. city  3. state  4. zip");
+            int Choice = Convert.ToInt32(Console.ReadLine());
+            string SortBy = "";
+            switch (Choice)
+            {
+                case 1:
+                    SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>(AddressBookCollection[CurrentAddressBookName]);
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                    SortBy = ContactFields[Choice + 1];
+                    break;               
+            }
+            if (SortedAddressBook == null)
+            {
+                SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>();
+                foreach (var item in AddressBookCollection[CurrentAddressBookName])
+                {
+                    SortedAddressBook.Add(item.Value[SortBy], item.Value);
+                }
+            }
+        }
+        /// <summary>
+        /// Reads the address book from file.
+        /// </summary>
+        private void ReadAddressBookFromFile()
+        {
+            if (File.Exists(FileName))
+            {
+                string output = File.ReadAllText(FileName);
+                Console.WriteLine(output);
+            }
+            else
+                Console.WriteLine("file don't exist");
+        }
+
+        /// <summary>
+        /// Wites the address book to file.
+        /// </summary>
+        private void WiteAddressBookToFile()
+        {
+            using (StreamWriter sr = File.CreateText(FileName))
+            {
+                foreach (var addressbook in AddressBookCollection)
+                {
+                    int ContactNo = 1;
+                    sr.WriteLine("Address book: " + addressbook.Key);
+                    foreach (var Contact in addressbook.Value.Values)
+                    {
+                        sr.WriteLine("\nContact no: " + ContactNo++);
+                        foreach (var CotactField in Contact)
+                        {
+                            sr.WriteLine(CotactField.Key.PadRight(12) + ": " + CotactField.Value);
+                        }
+                    }
+                    sr.WriteLine();
+                }
+                sr.Close();
+            }
+        }
         static void Main()
         {
             Console.WriteLine("Welcome to Address Book Program");
@@ -431,7 +502,8 @@ namespace AddressBookSystem
                 Console.WriteLine(" 5. create address book  6. change address book");
                 Console.WriteLine(" 7. search person        8. view persons");
                 Console.WriteLine(" 9. count contacts      10. view address book");
-                Console.WriteLine("11. sort address book");
+                Console.WriteLine("11. sort address book   12. write address book to file");
+                Console.WriteLine("13. read address book from file");
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -459,45 +531,20 @@ namespace AddressBookSystem
                         case 11: AddressBookManager.SortAddressbook();
                             Console.WriteLine(AddressBookManager);
                             break;
+                        case 12:
+                            AddressBookManager.WiteAddressBookToFile();
+                            break;
+                        case 13:
+                            AddressBookManager.ReadAddressBookFromFile();
+                            break;
+
                         default: Console.WriteLine("wrong choice");
                             break;
                     }
-                }catch (Exception) {
-                    Console.WriteLine("wrong input");
+                }catch (Exception e) {
+                    Console.WriteLine("wrong input "+e);
                 }                              
             }            
-        }
-        /// /<summary>
-        /// Sorts the addressbook.                                                                                  
-        /// </summary>
-        private void SortAddressbook()
-        {
-            Console.WriteLine("sort by 1. name 2. city  3. state  4. zip");
-            int Choice = Convert.ToInt32(Console.ReadLine());
-            string SortBy = "";
-            switch (Choice)
-            {
-                case 1:
-                    SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>(AddressBookCollection[CurrentAddressBookName]);
-                    break;
-                case 2:
-                    SortBy = ContactFields[3];
-                    break;
-                case 3:
-                    SortBy = ContactFields[4];
-                    break;
-                case 4:
-                    SortBy = ContactFields[5];
-                    break;
-            }
-            if (SortedAddressBook == null)
-            {
-                SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>();
-                foreach (var item in AddressBookCollection[CurrentAddressBookName])
-                {
-                    SortedAddressBook.Add(item.Value[SortBy], item.Value);
-                }
-            }
         }
     }
 }
