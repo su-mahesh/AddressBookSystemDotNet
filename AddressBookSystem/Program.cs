@@ -1,45 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AddressBookSystem
 {
     class AddressBook
     {
-        Dictionary<String, String> ContactField = new Dictionary<string, string>();
-        private void AddContact()
+        Dictionary<String, String> Contact = new Dictionary<string, string>();
+        static readonly string[] ContactFieldType = { "First Name", "Last Name", "Address", "City", "State", "Zip", "Phone number", "Email" };
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AddressBook"/> class.
+        /// </summary>
+        public AddressBook()
         {
-            Console.WriteLine("First Name:");
-            ContactField.Add("First Name", Console.ReadLine());
-
-            Console.WriteLine("Last Name:");
-            ContactField.Add("Last Name", Console.ReadLine());
-
-            Console.WriteLine("Address:");
-            ContactField.Add("Address", Console.ReadLine());
-
-            Console.WriteLine("City:");
-            ContactField.Add("City", Console.ReadLine());
-
-            Console.WriteLine("State:");
-            ContactField.Add("State", Console.ReadLine());
-
-            Console.WriteLine("Zip:");
-            ContactField.Add("Zip", Console.ReadLine());
-
-            Console.WriteLine("Phone number:");
-            ContactField.Add("Phone number", Console.ReadLine());
-
-            Console.WriteLine("Email:");
-            ContactField.Add("Email", Console.ReadLine());
+            foreach (string field in ContactFieldType)
+            {
+                Contact.Add(field,"");
+            }
         }
-
-        static void Main(string[] args)
+        /// <summary>
+        /// Adds the contact.
+        /// </summary>
+        /// <param name="ContactFields">The contact fields.</param>
+        private void AddContact(string[] ContactFields)
+        {
+            if (ContactFieldType.Length.Equals(ContactFields.Length))
+            {
+                for (int i = 0; i < ContactFieldType.Length; i++)
+                {
+                    Contact[ContactFieldType[i]] =  ContactFields[i];
+                }
+            }           
+        }
+        /// <summary>
+        /// Defines the entry point of the application.
+        /// </summary>
+        static void Main()
         {
             Console.WriteLine("Welcome to Address Book Program");
-            AddressBook addressBook = new AddressBook();
-            addressBook.AddContact();
         }
-
-
     }
 }
