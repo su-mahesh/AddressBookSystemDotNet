@@ -8,7 +8,7 @@ namespace AddressBookSystemNameSpace
 {/// <summary>
 /// AddressBookSystem containing variables and methods
 /// </summary>
-    class AddressBookSystem
+    public class AddressBookSystem
     {      
         /// <summary>
         /// collection variables
@@ -116,6 +116,10 @@ namespace AddressBookSystemNameSpace
         {
             return AddressBookCollection[CurrentAddressBookName].ContainsKey(PersonName);
         }
+        /// <summary>
+        /// Adds the contact.
+        /// </summary>
+        /// <param name="ContactFields">The contact fields.</param>
         public void AddContact(string[] ContactFields)
         {
             Contact = new Dictionary<string, string>();
@@ -328,42 +332,34 @@ namespace AddressBookSystemNameSpace
                 Console.WriteLine("add contact");
                 Console.WriteLine("First Name:");
                 input = Console.ReadLine();
-                //      input = "Mahh";
                 if (userRegistrationRegex.ValidateFirstName(input))
                     ContactFields[0] = input;
                 Console.WriteLine("Last Name:");
-                //   input = Console.ReadLine();
-                input = "Kan";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateLastName(input))
                     ContactFields[1] = input;
                 Console.WriteLine("Address:");
-                //   input = Console.ReadLine();
-                input = "mohitewadi";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateAddress(input))
                     ContactFields[2] = input;
                 Console.WriteLine("City:");
-                //       input = Console.ReadLine();
-                input = "pune";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateCity(input))
                     ContactFields[3] = input;
                 Console.WriteLine("State:");
-                //    input = Console.ReadLine();
-                input = "Mahar";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateState(input))
                     ContactFields[4] = input;
                 Console.WriteLine("Zip:");
                 input = Console.ReadLine();
-                //  input = "666 777";
                 if (userRegistrationRegex.ValidateZipCode(input))
                     ContactFields[5] = input;
                 Console.WriteLine("Phone number:");
-                // input = Console.ReadLine();
-                input = "91 9938888883";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateMobileNumber(input))
                     ContactFields[6] = input;
                 Console.WriteLine("Email:");
-                //  input = Console.ReadLine();
-                input = "dde@fe.fe";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateEmailAddress(input))
                     ContactFields[7] = input;
                 AddressBookManager.AddContact(ContactFields);
