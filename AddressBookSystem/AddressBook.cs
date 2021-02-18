@@ -77,7 +77,7 @@ namespace AddressBookSystemNameSpace
         /// <summary>
         /// Deletes the contact.
         /// </summary>
-        internal void DeleteContact(string ContactName)
+        public void DeleteContact(string ContactName)
         {
             if (IsContactPresent(ContactName))
             {
@@ -105,7 +105,7 @@ namespace AddressBookSystemNameSpace
         /// <summary>
         /// Creates the address book with name
         /// </summary>
-        internal void CreateAddressBook(string AddressBookName)
+        public void CreateAddressBook(string AddressBookName)
         {
             AddressBook = new SortedDictionary<string, Dictionary<string, string>>();
                 AddressBookCollection.Add(AddressBookName, AddressBook);
@@ -157,12 +157,16 @@ namespace AddressBookSystemNameSpace
             }
         }
 
-        internal string GetContactField(string ContactName, string ContactFieldType)
+        public string GetContactField(string ContactName, int FieldType)
         {
-            return AddressBookCollection[CurrentAddressBookName][ContactName][ContactFieldType];
+            return AddressBookCollection[CurrentAddressBookName][ContactName][ContactFieldType[FieldType]];
+        }
+        public string[] GetAllContactField(string ContactName)
+        {
+            return AddressBookCollection[CurrentAddressBookName][ContactName].Values.ToArray();
         }
 
-        internal bool CheckAddressBookExist(string AddressBookName)
+        public bool CheckAddressBookExist(string AddressBookName)
         {
             return AddressBookCollection.ContainsKey(AddressBookName);
         }
@@ -376,8 +380,8 @@ namespace AddressBookSystemNameSpace
             if (AddressBookManager.IsContactPresent(ContactName))
             {
                 EditContact:
-                string first_name = AddressBookManager.GetContactField(ContactName, AddressBookManager.ContactFieldType[0]);
-                string last_name = AddressBookManager.GetContactField(ContactName, AddressBookManager.ContactFieldType[1]);
+                string first_name = AddressBookManager.GetContactField(ContactName, 0);
+                string last_name = AddressBookManager.GetContactField(ContactName, 1);
 
                 Console.WriteLine("enter choice");
                 Console.WriteLine("1. First Name    2. Last Name    3. Address ");
@@ -444,9 +448,9 @@ namespace AddressBookSystemNameSpace
             string ContactName = Console.ReadLine();
             if (AddressBookManager.IsContactPresent(ContactName))
             {
-                foreach (var field in AddressBookManager.ContactFieldType)
+                for (int field = 0; field < AddressBookManager.ContactFieldType.Length; field++)
                 {
-                    Console.WriteLine(field.PadRight(12) + ": " + AddressBookManager.GetContactField(ContactName, field));
+                    Console.WriteLine(AddressBookManager.ContactFieldType[field].PadRight(12) + ": " + AddressBookManager.GetContactField(ContactName, field));
                 }
             }
             else
