@@ -4,13 +4,12 @@ using System.IO;
 using System.Linq;
 using UserRegistrationNameSpace;
 
-namespace AddressBookSystem
+namespace AddressBookSystemNameSpace
 {/// <summary>
 /// AddressBookSystem containing variables and methods
 /// </summary>
     class AddressBookSystem
-    {
-        UserRegistrationRegex userRegistrationRegex = new UserRegistrationRegex();
+    {      
         /// <summary>
         /// collection variables
         /// </summary>
@@ -19,11 +18,9 @@ namespace AddressBookSystem
         SortedDictionary<string, Dictionary<string, string>> AddressBook;
         SortedDictionary<string, List<Dictionary<string, string>>> CityAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
         SortedDictionary<string, List<Dictionary<string, string>>> StateAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
-        List<Dictionary<string, string>> ContactList;
-        string FileName = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.txt";
         Dictionary<string, SortedDictionary<string, Dictionary<string, string>>> AddressBookCollection = new Dictionary<string, SortedDictionary<string, Dictionary<string, string>>>();
-        string CurrentAddressBookName = "default";
-        string[] ContactFields = {"First Name", "Last Name", "Address", "City", "State", "Zip", "Phone number", "Email"};
+        public string CurrentAddressBookName = "default";
+        public string[] ContactFieldType = { "First Name", "Last Name", "Address", "City", "State", "Zip", "Phone number", "Email" };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressBookSystem"/> class.
@@ -33,76 +30,120 @@ namespace AddressBookSystem
             AddressBook = new SortedDictionary<string, Dictionary<string, string>>();
             AddressBookCollection.Add(CurrentAddressBookName, AddressBook);
         }
+
         /// <summary>
-        /// Adds new the contact.
+        /// Edits the contact details.
         /// </summary>
-        private void AddContact()
+        public void EditContactDetails(string ContactName, int FieldType, string Field)
         {
-            try
+            SortedDictionary<string, List<Dictionary<string, string>>> addressbook = CityAddressBook;
+            Dictionary<string, string> Contact = AddressBookCollection[CurrentAddressBookName][ContactName];
+            string TempField = Contact[ContactFieldType[FieldType]];
+            switch (FieldType)
             {
-                string input;
-                Console.WriteLine("add contact");
-                Contact = new Dictionary<string, string>();
+                case 3:
+                    addressbook = CityAddressBook;                   
+                    break;
+                case 4:
+                    addressbook = StateAddressBook;                   
+                    break;
+            }
+            Contact[ContactFieldType[FieldType]] = Field;
+            if (FieldType.Equals(0) || FieldType.Equals(1))
+            {
+                string first_name = Contact[ContactFieldType[0]];
+                string last_name = Contact[ContactFieldType[1]];
+                AddressBookCollection[CurrentAddressBookName].Add(first_name + " " + last_name, Contact);
+                AddressBookCollection[CurrentAddressBookName].Remove(ContactName);
+            }            
 
-                Console.WriteLine("First Name:");
-                input = Console.ReadLine();
-                if (userRegistrationRegex.ValidateFirstName(input))
-                    Contact.Add(ContactFields[0], input);
-
-                Console.WriteLine("Last Name:");
-                input = Console.ReadLine();
-                if (userRegistrationRegex.ValidateLastName(input))
-                    Contact.Add(ContactFields[1], input);
-
-                Console.WriteLine("Address:");
-                Contact.Add(ContactFields[2], Console.ReadLine());
-                Console.WriteLine("City:");
-                Contact.Add(ContactFields[3], Console.ReadLine());
-                Console.WriteLine("State:");
-                Contact.Add(ContactFields[4], Console.ReadLine());
-                Console.WriteLine("Zip:");
-                input = Console.ReadLine();
-                if (userRegistrationRegex.ValidateZipCode(input))
-                    Contact.Add(ContactFields[5], input);
-
-                Console.WriteLine("Phone number:");
-                input = Console.ReadLine();
-                if (userRegistrationRegex.ValidateMobileNumber(input))
-                    Contact.Add(ContactFields[6], input);
-
-                Console.WriteLine("Email:");
-                input = Console.ReadLine();
-                if (userRegistrationRegex.ValidateEmailAddress(input))
-                    Contact.Add(ContactFields[7], input);
-
-                foreach (var CotactField in Contact)
+            if (FieldType.Equals(3) || FieldType.Equals(4))
+            {
+                addressbook[TempField].Remove(Contact);
+                if (addressbook[TempField].Count.Equals(0))
                 {
-                    Console.WriteLine(CotactField.Key.PadRight(12) + ": " + CotactField.Value);
+                    addressbook.Remove(TempField);
                 }
-
-                Contact.TryGetValue(ContactFields[0], out string FirstName);
-                Contact.TryGetValue(ContactFields[1], out string LastName);
-                Contact.TryGetValue(ContactFields[3], out string City);
-                Contact.TryGetValue(ContactFields[4], out string State);
-                string FullName = FirstName + " " + LastName;
-
-                if (AddressBookCollection[CurrentAddressBookName].ContainsKey(FullName))
-                        Console.WriteLine("contact already exist");
+                if (addressbook.ContainsKey(Contact[ContactFieldType[FieldType]]))
+                {
+                    addressbook[Contact[ContactFieldType[FieldType]]].Add(Contact);
+                }
                 else
-                {                
-                    AddressBookCollection[CurrentAddressBookName].Add(FullName, Contact);
+                {
+                    addressbook.Add(Contact[ContactFieldType[FieldType]], new List<Dictionary<string, string>>() { Contact });
+                }
+            }
+        }
+        /// <summary>
+        /// Deletes the contact.
+        /// </summary>
+        internal void DeleteContact(string ContactName)
+        {
+            if (IsContactPresent(ContactName))
+            {
+                try
+                {
+                    Dictionary<string, string> Contact = AddressBookCollection[CurrentAddressBookName][ContactName];
+                    string City = Contact[ContactFieldType[3]];
+                    string State = Contact[ContactFieldType[4]];
+                    AddressBookCollection[CurrentAddressBookName].Remove(ContactName);
+                    CityAddressBook[City].Remove(Contact);
+                    StateAddressBook[State].Remove(Contact);
+                    if (CityAddressBook[City].Count().Equals(0))
+                        CityAddressBook.Remove(City);
+
+                    if (StateAddressBook[State].Count().Equals(0))
+                        StateAddressBook.Remove(State);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }                
+        }
+
+        /// <summary>
+        /// Creates the address book with name
+        /// </summary>
+        internal void CreateAddressBook(string AddressBookName)
+        {
+            AddressBook = new SortedDictionary<string, Dictionary<string, string>>();
+                AddressBookCollection.Add(AddressBookName, AddressBook);
+                CurrentAddressBookName = AddressBookName;
+        }
+        
+        public bool IsContactPresent(string PersonName)
+        {
+            return AddressBookCollection[CurrentAddressBookName].ContainsKey(PersonName);
+        }
+        public void AddContact(string[] ContactFields)
+        {
+            Contact = new Dictionary<string, string>();
+            if (ContactFieldType.Length.Equals(ContactFields.Length))
+            {
+                for (int i = 0; i < ContactFieldType.Length; i++)
+                {
+                    Contact.Add(ContactFieldType[i], ContactFields[i]);
+                }
+                string City = Contact[ContactFieldType[3]];
+                string State = Contact[ContactFieldType[4]];
+                string PersonName = Contact[ContactFieldType[0]] + " " + Contact[ContactFieldType[1]];
+
+                if (IsContactPresent(PersonName))
+                    Console.WriteLine("contact already exist");
+                else
+                {
+                    AddressBookCollection[CurrentAddressBookName].Add(PersonName, Contact);
                     if (!CityAddressBook.ContainsKey(City))
                     {
-                        ContactList = new List<Dictionary<string, string>>() { Contact };
-                        CityAddressBook.Add(City, ContactList);
-                    }                   
+                        CityAddressBook.Add(City, new List<Dictionary<string, string>>() { Contact });
+                    }
                     else
                         CityAddressBook[City].Add(Contact);
 
                     if (!StateAddressBook.ContainsKey(State))
                     {
-                        ContactList = new List<Dictionary<string, string>>() { Contact };
-                        StateAddressBook.Add(State, ContactList);
+                        StateAddressBook.Add(State, new List<Dictionary<string, string>>() { Contact });
                     }
                     else
                         StateAddressBook[State].Add(Contact);
@@ -110,52 +151,238 @@ namespace AddressBookSystem
                     Console.WriteLine("contact added\n");
                 }
             }
+        }
+
+        internal string GetContactField(string ContactName, string ContactFieldType)
+        {
+            return AddressBookCollection[CurrentAddressBookName][ContactName][ContactFieldType];
+        }
+
+        internal bool CheckAddressBookExist(string AddressBookName)
+        {
+            return AddressBookCollection.ContainsKey(AddressBookName);
+        }
+
+        internal void SetCurrentAddressBook(string AddressBookName)
+        {
+            CurrentAddressBookName = AddressBookName;
+        }
+
+        internal List<Dictionary<string, string>> GetPersonsFromCity(string City, string PersonName)
+        {
+            try
+            {
+                return CityAddressBook[City].Where(l => l[ContactFieldType[0]] +" "+l[ContactFieldType[1]] ==  PersonName).ToList();
+       
+            }
+            catch (KeyNotFoundException)
+            {
+                return null;
+            }
+        }
+        internal List<Dictionary<string, string>> GetPersonsFromState(string State, string PersonName)
+        {
+            try
+            {
+                return StateAddressBook[State].Where(l => l[ContactFieldType[0]] + " " + l[ContactFieldType[1]] == PersonName).ToList();
+            }
+            catch (KeyNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        internal List<Dictionary<string, string>> GetAllContactsFromCity(string City)
+        {
+            CityAddressBook.TryGetValue(City, out List<Dictionary<string, string>> Contacts);
+            return Contacts;
+        }
+
+        internal List<Dictionary<string, string>> GetAllContactsFromState(string State)
+        {           
+            StateAddressBook.TryGetValue(State, out List<Dictionary<string, string>> Contacts);
+            return Contacts;
+        }
+
+        internal int GetContactsCountByCity(string City)
+        {
+            try
+            {
+                return CityAddressBook[City].Count;
+            }
+            catch (KeyNotFoundException)
+            {
+                return 0;
+            }           
+        }
+
+        internal int GetContactsCountByState(string State)
+        {
+            try
+            {
+                return StateAddressBook[State].Count;
+            }
+            catch (KeyNotFoundException)
+            {
+                return 0;
+            }           
+        }
+
+        internal List<Dictionary<string, string>> GetAddressBookSortedByCity()
+        {
+            var Contacts = AddressBookCollection[CurrentAddressBookName].Values.ToList();
+                Contacts.Sort((contact1, contact2) => contact1[ContactFieldType[3]].CompareTo(contact2[ContactFieldType[3]]));
+            return Contacts;
+        }
+
+        internal void PrintContacts(List<Dictionary<string, string>> Contacts)
+        {
+            int ContactNumber = 0;
+            if (Contacts != null)
+            {
+                foreach (var contact in Contacts)
+                {
+                    Console.WriteLine("Contact No: " + ++ContactNumber);
+                    foreach (var field in contact)
+                    {
+                        Console.WriteLine(field.Key.PadRight(12) + ": " + field.Value);
+                    }
+                    Console.WriteLine();
+                }
+            }
+            else
+            {
+                Console.WriteLine("no person found");
+            }
+        }
+
+        internal List<Dictionary<string, string>> GetCurrentAddressBook()
+        {
+            return AddressBookCollection[CurrentAddressBookName].Values.ToList();
+        }
+
+        internal List<Dictionary<string, string>> GetAddressBookSortedByState()
+        {
+            var Contacts = AddressBookCollection[CurrentAddressBookName].Values.ToList();
+            Contacts.Sort((contact1, contact2) => contact1[ContactFieldType[4]].CompareTo(contact2[ContactFieldType[4]]));
+            return Contacts;
+        }
+
+        internal List<Dictionary<string, string>> GetAddressBookSortedByZip()
+        {
+            var Contacts = AddressBookCollection[CurrentAddressBookName].Values.ToList();
+            Contacts.Sort((contact1, contact2) => contact1[ContactFieldType[5]].CompareTo(contact2[ContactFieldType[5]]));
+            return Contacts;
+        }
+
+        internal string ReadFile(string FileName)
+        {
+            if (File.Exists(FileName))
+            {
+                return File.ReadAllText(FileName);
+            }
+            return null;
+                
+        }
+
+        internal bool WriteToFile(string FileName)
+        {
+            if (File.Exists(FileName))
+            {
+                using (StreamWriter sr = File.CreateText(FileName))
+                {
+                    foreach (var addressbook in AddressBookCollection)
+                    {
+                        int ContactNo = 1;
+                        sr.WriteLine("Address book: " + addressbook.Key);
+                        foreach (var Contact in addressbook.Value.Values)
+                        {
+                            sr.WriteLine("\nContact no: " + ContactNo++);
+                            foreach (var CotactField in Contact)
+                            {
+                                sr.WriteLine(CotactField.Key.PadRight(12) + ": " + CotactField.Value);
+                            }
+                        }
+                        sr.WriteLine();
+                    }
+                    sr.Close();
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    public class Program
+    {
+        static int NumContactFields = 8;
+        static string[] ContactFields = new string[NumContactFields];
+        static string input;
+        static UserRegistrationRegex userRegistrationRegex = new UserRegistrationRegex();
+        static AddressBookSystem AddressBookManager = new AddressBookSystem();
+        static string FileName = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.txt";
+
+        static void AddContact()
+        {
+            try
+            {
+                Console.WriteLine("add contact");
+                Console.WriteLine("First Name:");
+                input = Console.ReadLine();
+                //      input = "Mahh";
+                if (userRegistrationRegex.ValidateFirstName(input))
+                    ContactFields[0] = input;
+                Console.WriteLine("Last Name:");
+                //   input = Console.ReadLine();
+                input = "Kan";
+                if (userRegistrationRegex.ValidateLastName(input))
+                    ContactFields[1] = input;
+                Console.WriteLine("Address:");
+                //   input = Console.ReadLine();
+                input = "mohitewadi";
+                if (userRegistrationRegex.ValidateAddress(input))
+                    ContactFields[2] = input;
+                Console.WriteLine("City:");
+                //       input = Console.ReadLine();
+                input = "pune";
+                if (userRegistrationRegex.ValidateCity(input))
+                    ContactFields[3] = input;
+                Console.WriteLine("State:");
+                //    input = Console.ReadLine();
+                input = "Mahar";
+                if (userRegistrationRegex.ValidateState(input))
+                    ContactFields[4] = input;
+                Console.WriteLine("Zip:");
+                input = Console.ReadLine();
+                //  input = "666 777";
+                if (userRegistrationRegex.ValidateZipCode(input))
+                    ContactFields[5] = input;
+                Console.WriteLine("Phone number:");
+                // input = Console.ReadLine();
+                input = "91 9938888883";
+                if (userRegistrationRegex.ValidateMobileNumber(input))
+                    ContactFields[6] = input;
+                Console.WriteLine("Email:");
+                //  input = Console.ReadLine();
+                input = "dde@fe.fe";
+                if (userRegistrationRegex.ValidateEmailAddress(input))
+                    ContactFields[7] = input;
+                AddressBookManager.AddContact(ContactFields);
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
         }
-        /// <summary>
-        /// Shows the contact detail
-        /// </summary>
-        /// <param name="Contact">The contact.</param>
-        void ShowContact(Dictionary<string, string> Contact)
-        {
-            Console.WriteLine("First Name:  " + Contact[ContactFields[0]]);
-            Console.WriteLine("Last Name:   " + Contact[ContactFields[1]]);
-            Console.WriteLine("Address:     " + Contact[ContactFields[2]]);
-            Console.WriteLine("City:        " + Contact[ContactFields[3]]);
-            Console.WriteLine("State:       " + Contact[ContactFields[4]]);
-            Console.WriteLine("Zip:         " + Contact[ContactFields[5]]);
-            Console.WriteLine("Phone number:" + Contact[ContactFields[6]]);
-            Console.WriteLine("Email:       " + Contact[ContactFields[7]]);
-        }
-        /// <summary>
-        /// Views the contact.
-        /// </summary>
-        private void ViewContact()
-        {
-            Console.WriteLine("Enter full name:");
-            string ContactName = Console.ReadLine();
-            if (AddressBookCollection[CurrentAddressBookName].ContainsKey(ContactName))
-            {
-                Contact = AddressBookCollection[CurrentAddressBookName][ContactName];
-                ShowContact(Contact);
-            }
-            else
-                Console.WriteLine("Contact doesn't exist");
-        }
-        /// <summary>
-        /// Edits the contact details.
-        /// </summary>
-        private void EditContactDetails()
+        static void EditContactDetails()
         {
             Console.WriteLine("Enter full contact name");
             string ContactName = Console.ReadLine();
-
-            if (AddressBookCollection[CurrentAddressBookName].ContainsKey(ContactName))
+            if (AddressBookManager.IsContactPresent(ContactName))
             {
-            EditContact:
+                EditContact:
+                string first_name = AddressBookManager.GetContactField(ContactName, AddressBookManager.ContactFieldType[0]);
+                string last_name = AddressBookManager.GetContactField(ContactName, AddressBookManager.ContactFieldType[1]);
+
                 Console.WriteLine("enter choice");
                 Console.WriteLine("1. First Name    2. Last Name    3. Address ");
                 Console.WriteLine("4. City          5. State        6. Zip");
@@ -164,170 +391,114 @@ namespace AddressBookSystem
                 if (Choice > 0 && Choice < 9)
                 {
                     Console.WriteLine("Enter contact field:");
-                    string CotanctField = Console.ReadLine();
+                    string ContactField = Console.ReadLine();
                     try
                     {
                         switch (Choice)
                         {
                             case 1:
-                                if (userRegistrationRegex.ValidateFirstName(CotanctField))
-                                    AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[0]] = CotanctField;
+                                if (userRegistrationRegex.ValidateFirstName(ContactField))
+                                    first_name = ContactField;
                                 break;
                             case 2:
-                                if (userRegistrationRegex.ValidateLastName(CotanctField))
-                                    AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[1]] = CotanctField;
+                                if (userRegistrationRegex.ValidateLastName(ContactField))
+                                    last_name = ContactField;
                                 break;
                             case 3:
-                                AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[2]] = CotanctField;
+                                userRegistrationRegex.ValidateAddress(ContactField);
                                 break;
                             case 4:
-                                AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[3]] = CotanctField;
+                                userRegistrationRegex.ValidateCity(ContactField);
                                 break;
                             case 5:
-                                AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[4]] = CotanctField;
+                                userRegistrationRegex.ValidateState(ContactField);
                                 break;
                             case 6:
-                                if (userRegistrationRegex.ValidateZipCode(CotanctField))
-                                    AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[5]] = CotanctField;
+                                userRegistrationRegex.ValidateZipCode(ContactField);
                                 break;
                             case 7:
-                                if (userRegistrationRegex.ValidateMobileNumber(CotanctField))
-                                    AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[6]] = CotanctField;
+                                userRegistrationRegex.ValidateMobileNumber(ContactField);
                                 break;
                             case 8:
-                                if (userRegistrationRegex.ValidateEmailAddress(CotanctField))
-                                    AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[7]] = CotanctField;
+                                userRegistrationRegex.ValidateEmailAddress(ContactField);
                                 break;
                         }
-                        AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[Choice]] = CotanctField;
-                        string FullContactName = AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[0]] + " " +
-                                            AddressBookCollection[CurrentAddressBookName][ContactName][ContactFields[1]];
-
-                        AddressBookCollection[CurrentAddressBookName].Add(FullContactName, AddressBookCollection[CurrentAddressBookName][ContactName]);
-                        AddressBookCollection[CurrentAddressBookName].Remove(ContactName);
-                        ContactName = FullContactName;
+                        AddressBookManager.EditContactDetails(ContactName, Choice - 1, ContactField);
+                        if (Choice.Equals(1) || Choice.Equals(2))
+                        {
+                            ContactName = first_name + " " + last_name;
+                        }
                         Console.WriteLine("contact edited");
                     }
                     catch (UserRegistrationException e)
                     {
                         Console.WriteLine(e);
-                    }                                       
+                    }
                     goto EditContact;
                 }
             }
             else
+            {
                 Console.WriteLine("contact doesn't exist");
+            }
         }
-        /// <summary>
-        /// Deletes the contact.
-        /// </summary>
-        private void DeleteContact()
+        static void ViewContact()
+        {
+            Console.WriteLine("Enter full name:");
+            string ContactName = Console.ReadLine();
+            if (AddressBookManager.IsContactPresent(ContactName))
+            {
+                foreach (var field in AddressBookManager.ContactFieldType)
+                {
+                    Console.WriteLine(field.PadRight(12) + ": " + AddressBookManager.GetContactField(ContactName, field));
+                }
+            }
+            else
+                Console.WriteLine("Contact doesn't exist");
+        }
+        static void DeleteContact()
         {
             Console.WriteLine("Enter contact name:");
             string ContactName = Console.ReadLine();
-           
-            try
-            {
-                if (AddressBook.ContainsKey(ContactName))
-                {
-                    Contact = AddressBook[ContactName];
-                    AddressBook.Remove(ContactName);
-                    string City = Contact[ContactFields[3]];
-                    string State = Contact[ContactFields[4]];
-                    CityAddressBook[City].Remove(Contact);
-                    StateAddressBook[State].Remove(Contact);
-                    if (CityAddressBook[City].Count().Equals(0))
-                        CityAddressBook.Remove(City);
 
-                    if (StateAddressBook[State].Count().Equals(0))
-                        StateAddressBook.Remove(State);
-
-                    Console.WriteLine("contact removed");
-                }
-                else
-                    Console.WriteLine("contact doesn't exist");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }            
+            AddressBookManager.DeleteContact(ContactName);
         }
-
-        /// <summary>
-        /// Creates the address book with name
-        /// </summary>
-        private void CreateAddressBook()
+        static void CreateAddressBook()
         {
-            AddressBook = new SortedDictionary<string, Dictionary<string, string>>();
             Console.WriteLine("Enter address book name:");
             string AddressBookName = Console.ReadLine();
-            if (AddressBookCollection.ContainsKey(AddressBookName))
-                Console.WriteLine("Address book already exist");
-            else
+            if (!AddressBookManager.CheckAddressBookExist(AddressBookName))
             {
-                AddressBookCollection.Add(AddressBookName, AddressBook);
-                CurrentAddressBookName = AddressBookName;
+                AddressBookManager.CreateAddressBook(AddressBookName);
                 Console.WriteLine("Address book created");
             }
+            else
+                Console.WriteLine("address book already exist");
         }
-        private void ChangeAddressBook()
+        static string GetCurrentAddressBookName()
+        {
+            return AddressBookManager.CurrentAddressBookName;
+        }
+
+        static void ChangeAddressBook()
         {
             Console.WriteLine("Enter address book name:");
             string AddressBookName = Console.ReadLine();
-            if (AddressBookCollection.ContainsKey(AddressBookName))
+            if (AddressBookManager.CheckAddressBookExist(AddressBookName))
             {
-                CurrentAddressBookName = AddressBookName;
-                Console.WriteLine("address book changed");
+                AddressBookManager.SetCurrentAddressBook(AddressBookName);
+                Console.WriteLine("current address book changed");
             }
             else
                 Console.WriteLine("address book doesn't exist");
         }
-        /// <summary>
-        /// Views the persons by city or state
-        /// </summary>
-        public void ViewPersons()
-        {
-            Console.WriteLine("1. by city  2. by state");
-            int Choice = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("enter field: ");
-            string Field = Console.ReadLine();
-            int ContactNumber = 0;
-            try
-            {
-                switch (Choice)
-                {
-                    case 1:
-                        foreach (Dictionary<string, string> Contact in CityAddressBook[Field])
-                        {
-                            Console.WriteLine("contact no: " + ++ContactNumber);
-                            ShowContact(Contact);
-                            Console.WriteLine();
-                        }
-                        break;
-                    case 2:
-                        foreach (Dictionary<string, string> Contact in StateAddressBook[Field])
-                        {
-                            Console.WriteLine("contact no: " + ++ContactNumber);
-                            ShowContact(Contact);
-                            Console.WriteLine();
-                        }
-                        break;
-                }
-            }
-            catch (KeyNotFoundException)
-            {
-                Console.WriteLine("no contact found");
-            }
-           
 
-        }
         /// <summary>
         /// Searches the person across city and state
         /// </summary>
-        public void SearchPerson()
+        static void SearchPerson()
         {
-            string City = "";
-            string State = "";
+            List<Dictionary<string, string>> Contacts = new List<Dictionary<string, string>>();
             Console.WriteLine("enter person name:");
             string PersonName = Console.ReadLine();
             Console.WriteLine("1. search in city 2. search in state");
@@ -336,166 +507,119 @@ namespace AddressBookSystem
             {
                 case 1:
                     Console.WriteLine("enter city:");
-                    City = Console.ReadLine();
+                    string City = Console.ReadLine();
+                    Contacts = AddressBookManager.GetPersonsFromCity(City, PersonName);
                     break;
                 case 2:
                     Console.WriteLine("enter state:");
-                    State = Console.ReadLine();
+                    string State = Console.ReadLine();
+                    Contacts = AddressBookManager.GetPersonsFromState(State, PersonName);
                     break;
             }
             int ContactNumber = 0;
-
-            foreach (SortedDictionary<string, Dictionary<string, string>> AddressBook in AddressBookCollection.Values)
+            if (Contacts != null)
             {
-                foreach (Dictionary<string, string> Contact in AddressBook.Values)
+                foreach (var contact in Contacts)
                 {
-                    if ((Contact[ContactFields[0]] + " " + Contact[ContactFields[2]]).Equals(PersonName) && (Contact[ContactFields[3]].Equals(City) || Contact[ContactFields[4]].Equals(State)))
+                    Console.WriteLine("Contact No: " + ++ContactNumber);
+                    foreach (var field in contact)
                     {
-                        Console.WriteLine("Contact no: " + ++ContactNumber);
-                        ShowContact(Contact);
-                        Console.WriteLine();
+                        Console.WriteLine(field.Key.PadRight(12) + ": " + field.Value);
                     }
                 }
             }
-
-            if (ContactNumber.Equals(0))
+            else
             {
                 Console.WriteLine("no person found");
             }
+
+
+
         }
-        /// <summary>
-        /// Counts the contacts city or state
-        /// </summary>
-        private void CountContacts()
+        private static void ViewAddressBook()
         {
-            Console.WriteLine("1. count by city 2. count by state");
-            int Choice = Convert.ToInt32(Console.ReadLine());
-            string field = "";
-            int PersonsCount = 0;
-            try
-            {
-                switch (Choice)
-                {
-                    case 1:
-                        Console.WriteLine("enter city: ");
-                        field = Console.ReadLine();
-                        PersonsCount = CityAddressBook[field].Count;
-                        break;
-                    case 2:
-                        Console.WriteLine("enter state: ");
-                        field = Console.ReadLine();
-                        PersonsCount = StateAddressBook[field].Count;
-                        break;
-                }
-                Console.WriteLine("number of persons in " + field + ": " + PersonsCount);
-            }
-            catch (KeyNotFoundException)
-            {
-                Console.WriteLine("not contacts found");
-            }
+            var Contacts = AddressBookManager.GetCurrentAddressBook();
+            AddressBookManager.PrintContacts(Contacts);
         }
-        /// <summary>
-        /// Converts to string. override ToString()
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public override string ToString()
+
+        private static void SortAddressBook()
         {
-            if (SortedAddressBook == null)
-                SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>(AddressBookCollection[CurrentAddressBookName]);
-            string ContactList = "";
-            int number = 1;
-            foreach (var Contacts in SortedAddressBook.Values)
-            {
-                ContactList += "contact no: " + number++ + "\n";
-                foreach (var Contact in Contacts)
-                {
-                    ContactList += Contact.Key + ": " + Contact.Value + "\n";
-                }
-                ContactList += "\n";
-            }
-            SortedAddressBook = null;
-            return ContactList;
-        }
-        /// <summary>
-        /// Defines the entry point of the application.
-        /// </summary>
-        ///       /// /<summary>
-        /// Sorts the addressbook.                                                                                  
-        /// </summary>
-        private void SortAddressbook()
-        {
+            var Contacts = new List<Dictionary<string, string>>();
             Console.WriteLine("sort by 1. name 2. city  3. state  4. zip");
             int Choice = Convert.ToInt32(Console.ReadLine());
-            string SortBy = "";
             switch (Choice)
             {
                 case 1:
-                    SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>(AddressBookCollection[CurrentAddressBookName]);
+                    Contacts = AddressBookManager.GetCurrentAddressBook();
                     break;
                 case 2:
+                    Contacts = AddressBookManager.GetAddressBookSortedByCity();
+                    break;
                 case 3:
+                    Contacts = AddressBookManager.GetAddressBookSortedByState();
+                    break;
                 case 4:
-                    SortBy = ContactFields[Choice + 1];
-                    break;               
+                    Contacts = AddressBookManager.GetAddressBookSortedByZip();
+                    break;
             }
-            if (SortedAddressBook == null)
-            {
-                SortedAddressBook = new SortedDictionary<string, Dictionary<string, string>>();
-                foreach (var item in AddressBookCollection[CurrentAddressBookName])
-                {
-                    SortedAddressBook.Add(item.Value[SortBy], item.Value);
-                }
-            }
-        }
-        /// <summary>
-        /// Reads the address book from file.
-        /// </summary>
-        private void ReadAddressBookFromFile()
-        {
-            if (File.Exists(FileName))
-            {
-                string output = File.ReadAllText(FileName);
-                Console.WriteLine(output);
-            }
-            else
-                Console.WriteLine("file don't exist");
+            AddressBookManager.PrintContacts(Contacts);
         }
 
-        /// <summary>
-        /// Wites the address book to file.
-        /// </summary>
-        private void WiteAddressBookToFile()
+        private static void CountContacts()
         {
-            using (StreamWriter sr = File.CreateText(FileName))
+            Console.WriteLine("1. count by city  2. count by state");
+            int Choice = Convert.ToInt32(Console.ReadLine());
+            string field = "";
+            int PersonsCount = 0;
+
+            switch (Choice)
             {
-                foreach (var addressbook in AddressBookCollection)
-                {
-                    int ContactNo = 1;
-                    sr.WriteLine("Address book: " + addressbook.Key);
-                    foreach (var Contact in addressbook.Value.Values)
-                    {
-                        sr.WriteLine("\nContact no: " + ContactNo++);
-                        foreach (var CotactField in Contact)
-                        {
-                            sr.WriteLine(CotactField.Key.PadRight(12) + ": " + CotactField.Value);
-                        }
-                    }
-                    sr.WriteLine();
-                }
-                sr.Close();
+                case 1:
+                    Console.WriteLine("enter city: ");
+                    field = Console.ReadLine();
+                    PersonsCount = AddressBookManager.GetContactsCountByCity(field);
+                    break;
+                case 2:
+                    Console.WriteLine("enter state: ");
+                    field = Console.ReadLine();
+                    PersonsCount = AddressBookManager.GetContactsCountByState(field);
+                    break;
+            }
+            Console.WriteLine("number of persons in " + field + ": " + PersonsCount);
+        }
+
+        private static void ViewAllPersons()
+        {
+            Console.WriteLine("1. by city  2. by state");
+            int Choice = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("enter field: ");
+            string Field = Console.ReadLine();
+            var Contacts = new List<Dictionary<string, string>>();
+            switch (Choice)
+            {
+                case 1:
+                    Contacts = AddressBookManager.GetAllContactsFromCity(Field);
+                    break;
+                case 2:
+                    Contacts = AddressBookManager.GetAllContactsFromState(Field);
+                    break;
+            }
+            if (Contacts == null)
+            {
+                Console.WriteLine("no contact found");
+            }
+            else
+            {
+                AddressBookManager.PrintContacts(Contacts);
             }
         }
         static void Main()
-        {
+        {          
             Console.WriteLine("Welcome to Address Book Program");
-            AddressBookSystem AddressBookManager = new AddressBookSystem();
-
             while (true)
             {
                 Console.WriteLine("\n******************** MENU *******************");
-                Console.WriteLine("*********** AddressBook: " + AddressBookManager.CurrentAddressBookName + " ***********");
+                Console.WriteLine("*********** AddressBook: " + GetCurrentAddressBookName() + " ***********");
 
                 Console.WriteLine(" 1. add contact          2. edit contact");
                 Console.WriteLine(" 3. view contact         4. delete contact");
@@ -508,43 +632,68 @@ namespace AddressBookSystem
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
                     {
-                        case 1: AddressBookManager.AddContact();
+                        case 1:
+                            AddContact();
                             break;
-                        case 2: AddressBookManager.EditContactDetails();
+                        case 2:
+                            EditContactDetails();
                             break;
-                        case 3: AddressBookManager.ViewContact();
+                        case 3:
+                            ViewContact();
                             break;
-                        case 4: AddressBookManager.DeleteContact();
+                        case 4:
+                            DeleteContact();
                             break;
-                        case 5: AddressBookManager.CreateAddressBook();
+                        case 5:
+                            CreateAddressBook();
                             break;
-                        case 6: AddressBookManager.ChangeAddressBook();
+                        case 6:
+                            ChangeAddressBook();
                             break;
-                        case 7: AddressBookManager.SearchPerson();
+                        case 7:
+                            SearchPerson();
                             break;
-                        case 8: AddressBookManager.ViewPersons();
+                        case 8:
+                            ViewAllPersons();
                             break;
-                        case 9: AddressBookManager.CountContacts();
+                        case 9:
+                            CountContacts();
                             break;
-                        case 10: Console.WriteLine(AddressBookManager);
+                        case 10:
+                            ViewAddressBook();
                             break;
-                        case 11: AddressBookManager.SortAddressbook();
-                            Console.WriteLine(AddressBookManager);
+                        case 11:
+                            SortAddressBook();
                             break;
                         case 12:
-                            AddressBookManager.WiteAddressBookToFile();
+                            WriteAddressBookToFile();
                             break;
                         case 13:
-                            AddressBookManager.ReadAddressBookFromFile();
+                            ReadAddressBookFromFile();
                             break;
-
-                        default: Console.WriteLine("wrong choice");
+                        default:
+                            Console.WriteLine("wrong choice");
                             break;
                     }
-                }catch (Exception e) {
-                    Console.WriteLine("wrong input "+e);
-                }                              
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("wrong input " + e);
+                }
+            }
+        }
+
+        private static void WriteAddressBookToFile()
+        {
+            if (AddressBookManager.WriteToFile(FileName))
+            {
+                Console.WriteLine("wrote to file");
             }            
+        }
+        private static void ReadAddressBookFromFile()
+        {
+            string output = AddressBookManager.ReadFile(FileName);
+            Console.WriteLine(output);
         }
     }
 }

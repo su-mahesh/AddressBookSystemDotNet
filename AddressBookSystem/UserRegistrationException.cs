@@ -17,7 +17,10 @@ namespace UserRegistrationNameSpace
             ENTERED_DIGIT_IN_COUNTRY_TLD,
             ENTERED_PUNCTUATION_IN_START_OF_TLD,
             ENTERED_FIRST_LETTER_LOWERCASE,
-            ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE
+            ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE,
+            ENTERED_SYMBOL,
+            ENTERED_FIRST_DIGIT_ZERO,
+            ENTERED_PUNCTUATION
         }
         public ExceptionType exceptionType;
         public UserRegistrationException(ExceptionType exceptionType, string message) : base(message)
