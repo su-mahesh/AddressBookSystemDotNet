@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using Newtonsoft.Json;
 using UserRegistrationNameSpace;
 
 namespace AddressBookSystemNameSpace
 {/// <summary>
 /// AddressBookSystem containing variables and methods
 /// </summary>
+   [DataContract]
     public class AddressBookSystem
     {      
         /// <summary>
@@ -18,6 +21,7 @@ namespace AddressBookSystemNameSpace
         SortedDictionary<string, Dictionary<string, string>> AddressBook;
         SortedDictionary<string, List<Dictionary<string, string>>> CityAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
         SortedDictionary<string, List<Dictionary<string, string>>> StateAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
+        [DataMember]
         Dictionary<string, SortedDictionary<string, Dictionary<string, string>>> AddressBookCollection = new Dictionary<string, SortedDictionary<string, Dictionary<string, string>>>();
         public string CurrentAddressBookName = "default";
         public string[] ContactFieldType = { "First Name", "Last Name", "Address", "City", "State", "Zip", "Phone number", "Email" };
@@ -267,6 +271,12 @@ namespace AddressBookSystemNameSpace
         {
             return AddressBookCollection[CurrentAddressBookName].Values.ToList();
         }
+        internal List<Dictionary<string, string>> GetAllAddressBook()
+        {
+            var ContactList = new List<Dictionary<string, string>>();
+            AddressBookCollection.Values.ToList().ForEach(ContactKeyValue => ContactKeyValue.Values.ToList().ForEach(Contact => ContactList.Add(Contact)));
+            return ContactList;
+        }
 
         internal List<Dictionary<string, string>> GetAddressBookSortedByState()
         {
@@ -373,51 +383,45 @@ namespace AddressBookSystemNameSpace
         static AddressBookSystem AddressBookManager = new AddressBookSystem();
         static string FileName = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.txt";
         static string CsvFile = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.csv";
-
+        static string JsonFile = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.json";
+        static string jsonString;
         static void AddContact()
         {
             try
             {
                 Console.WriteLine("First Name:");
                 input = Console.ReadLine();
-                //      input = "Mahh";
                 if (userRegistrationRegex.ValidateFirstName(input))
                     ContactFields[0] = input;
                 Console.WriteLine("Last Name:");
-                //   input = Console.ReadLine();
-                input = "Kan";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateLastName(input))
                     ContactFields[1] = input;
                 Console.WriteLine("Address:");
-                //   input = Console.ReadLine();
-                input = "mohitewadi";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateAddress(input))
                     ContactFields[2] = input;
                 Console.WriteLine("City:");
-                //       input = Console.ReadLine();
-                input = "pune";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateCity(input))
                     ContactFields[3] = input;
                 Console.WriteLine("State:");
-                //    input = Console.ReadLine();
-                input = "Mahar";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateState(input))
                     ContactFields[4] = input;
                 Console.WriteLine("Zip:");
-               // input = Console.ReadLine();
-                  input = "666 777";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateZipCode(input))
                     ContactFields[5] = input;
                 Console.WriteLine("Phone number:");
-                // input = Console.ReadLine();
-                input = "91 9938888883";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateMobileNumber(input))
                     ContactFields[6] = input;
                 Console.WriteLine("Email:");
-                //  input = Console.ReadLine();
-                input = "dde@fe.fe";
+                input = Console.ReadLine();
                 if (userRegistrationRegex.ValidateEmailAddress(input))
                     ContactFields[7] = input;
+                AddressBookManager.AddContact(ContactFields);
                 AddressBookManager.AddContact(ContactFields);
             }
             catch (Exception e)
@@ -584,9 +588,6 @@ namespace AddressBookSystemNameSpace
             {
                 Console.WriteLine("no person found");
             }
-
-
-
         }
         private static void ViewAddressBook()
         {
@@ -694,6 +695,8 @@ namespace AddressBookSystemNameSpace
                 Console.WriteLine("13. read address book from file");
                 Console.WriteLine("14. write to csv file");
                 Console.WriteLine("15. read csv file");
+                Console.WriteLine("16. write to json file");
+                Console.WriteLine("17. read from json file");
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -743,6 +746,12 @@ namespace AddressBookSystemNameSpace
                         case 15:
                             ReadAddressBookFromCsvFile();
                             break;
+                        case 16:
+                            WriteAddressBookToJsonFile();
+                            break;
+                        case 17:
+                            ReadAddressBookFromJsonFile();
+                            break;
                         default:
                             Console.WriteLine("wrong choice");
                             break;
@@ -752,6 +761,26 @@ namespace AddressBookSystemNameSpace
                 {
                     Console.WriteLine("wrong input " + e);
                 }
+            }
+        }
+
+        private static void ReadAddressBookFromJsonFile()
+        {
+            if (File.Exists(JsonFile))
+            {
+                string jsonString = File.ReadAllText(JsonFile);
+                AddressBookSystem AddressBookManagerJson = JsonConvert.DeserializeObject<AddressBookSystem>(jsonString);
+                AddressBookManager.PrintContacts(AddressBookManagerJson.GetAllAddressBook());                
+            }
+        }
+
+        private static void WriteAddressBookToJsonFile()
+        {
+            if (File.Exists(JsonFile))
+            {
+                jsonString = JsonConvert.SerializeObject(AddressBookManager);
+                using StreamWriter sw = File.CreateText(JsonFile);
+                sw.Write(jsonString);
             }
         }
 
