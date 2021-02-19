@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UserRegistrationNameSpace;
 
 namespace AddressBookSystemNameSpace
@@ -14,7 +15,6 @@ namespace AddressBookSystemNameSpace
         /// collection variables
         /// </summary>
         Dictionary<string, string> Contact;
-        SortedDictionary<string, Dictionary<string, string>> SortedAddressBook;
         SortedDictionary<string, Dictionary<string, string>> AddressBook;
         SortedDictionary<string, List<Dictionary<string, string>>> CityAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
         SortedDictionary<string, List<Dictionary<string, string>>> StateAddressBook = new SortedDictionary<string, List<Dictionary<string, string>>>();
@@ -180,8 +180,7 @@ namespace AddressBookSystemNameSpace
         {
             try
             {
-                return CityAddressBook[City].Where(l => l[ContactFieldType[0]] +" "+l[ContactFieldType[1]] ==  PersonName).ToList();
-       
+                return CityAddressBook[City].Where(l => l[ContactFieldType[0]] +" "+l[ContactFieldType[1]] ==  PersonName).ToList();      
             }
             catch (KeyNotFoundException)
             {
@@ -289,8 +288,7 @@ namespace AddressBookSystemNameSpace
             {
                 return File.ReadAllText(FileName);
             }
-            return null;
-                
+            return null;                
         }
 
         internal bool WriteToFile(string FileName)
@@ -319,6 +317,52 @@ namespace AddressBookSystemNameSpace
             }
             return false;
         }
+
+        public void WriteToCsvFile(string csvFile)
+        {
+            var csv = new StringBuilder();
+            for (int i = 0; i < ContactFieldType.Length; i++)
+            {
+                csv.Append(ContactFieldType[i]);
+                if (i != ContactFieldType.Length - 1)
+                {
+                    csv.Append(",");
+                }
+            }
+            csv.Append("\n");
+            AddressBookCollection[CurrentAddressBookName].Values.ToList().
+                ForEach(Contact => { Contact.Values.ToList().
+                ForEach(ContactField => { csv.Append(ContactField); 
+                    if (Contact.Last().Value != ContactField) { csv.Append(",");}
+                    else
+                        csv.Append("\n");
+                }); });
+            using StreamWriter sw = File.CreateText(csvFile);
+            sw.Write(csv.ToString());
+            Console.WriteLine("wrote to csv file");
+        }
+
+        internal void ReadFromCsvFile(string csvFile)
+        {
+            if (File.Exists(csvFile))
+            {
+                using StreamReader sr = File.OpenText(csvFile);
+                string[] header = sr.ReadLine().Split(",");
+                string Lines = "";
+                int ContactNo = 1;
+                string[] field;
+                while ((Lines = sr.ReadLine() ) != null)
+                {
+                    Console.WriteLine("Contact no: " + ContactNo++);
+                    field = Lines.Split(",");
+                    for (int i = 0; i < header.Length; i++)
+                    {
+                        Console.WriteLine(header[i].PadRight(12) + ": " + field[i]);
+                    }
+                    Console.WriteLine();
+                }
+            }
+        }
     }
     public class Program
     {
@@ -328,42 +372,50 @@ namespace AddressBookSystemNameSpace
         static UserRegistrationRegex userRegistrationRegex = new UserRegistrationRegex();
         static AddressBookSystem AddressBookManager = new AddressBookSystem();
         static string FileName = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.txt";
+        static string CsvFile = @"C:/Users/Mahesh Kangude/source/repos/AddressBookSystem/AddressBookSystem/AddressBook.csv";
 
         static void AddContact()
         {
             try
             {
-                Console.WriteLine("add contact");
                 Console.WriteLine("First Name:");
                 input = Console.ReadLine();
+                //      input = "Mahh";
                 if (userRegistrationRegex.ValidateFirstName(input))
                     ContactFields[0] = input;
                 Console.WriteLine("Last Name:");
-                input = Console.ReadLine();
+                //   input = Console.ReadLine();
+                input = "Kan";
                 if (userRegistrationRegex.ValidateLastName(input))
                     ContactFields[1] = input;
                 Console.WriteLine("Address:");
-                input = Console.ReadLine();
+                //   input = Console.ReadLine();
+                input = "mohitewadi";
                 if (userRegistrationRegex.ValidateAddress(input))
                     ContactFields[2] = input;
                 Console.WriteLine("City:");
-                input = Console.ReadLine();
+                //       input = Console.ReadLine();
+                input = "pune";
                 if (userRegistrationRegex.ValidateCity(input))
                     ContactFields[3] = input;
                 Console.WriteLine("State:");
-                input = Console.ReadLine();
+                //    input = Console.ReadLine();
+                input = "Mahar";
                 if (userRegistrationRegex.ValidateState(input))
                     ContactFields[4] = input;
                 Console.WriteLine("Zip:");
-                input = Console.ReadLine();
+               // input = Console.ReadLine();
+                  input = "666 777";
                 if (userRegistrationRegex.ValidateZipCode(input))
                     ContactFields[5] = input;
                 Console.WriteLine("Phone number:");
-                input = Console.ReadLine();
+                // input = Console.ReadLine();
+                input = "91 9938888883";
                 if (userRegistrationRegex.ValidateMobileNumber(input))
                     ContactFields[6] = input;
                 Console.WriteLine("Email:");
-                input = Console.ReadLine();
+                //  input = Console.ReadLine();
+                input = "dde@fe.fe";
                 if (userRegistrationRegex.ValidateEmailAddress(input))
                     ContactFields[7] = input;
                 AddressBookManager.AddContact(ContactFields);
@@ -613,6 +665,18 @@ namespace AddressBookSystemNameSpace
                 AddressBookManager.PrintContacts(Contacts);
             }
         }
+        private static void WriteAddressBookToFile()
+        {
+            if (AddressBookManager.WriteToFile(FileName))
+            {
+                Console.WriteLine("wrote to file");
+            }
+        }
+        private static void ReadAddressBookFromFile()
+        {
+            string output = AddressBookManager.ReadFile(FileName);
+            Console.WriteLine(output);
+        }
         static void Main()
         {          
             Console.WriteLine("Welcome to Address Book Program");
@@ -628,6 +692,8 @@ namespace AddressBookSystemNameSpace
                 Console.WriteLine(" 9. count contacts      10. view address book");
                 Console.WriteLine("11. sort address book   12. write address book to file");
                 Console.WriteLine("13. read address book from file");
+                Console.WriteLine("14. write to csv file");
+                Console.WriteLine("15. read csv file");
                 try
                 {
                     switch (Convert.ToInt32(Console.ReadLine()))
@@ -671,6 +737,12 @@ namespace AddressBookSystemNameSpace
                         case 13:
                             ReadAddressBookFromFile();
                             break;
+                        case 14:
+                            WriteAddressBookToCsvFile();
+                            break;
+                        case 15:
+                            ReadAddressBookFromCsvFile();
+                            break;
                         default:
                             Console.WriteLine("wrong choice");
                             break;
@@ -683,17 +755,20 @@ namespace AddressBookSystemNameSpace
             }
         }
 
-        private static void WriteAddressBookToFile()
+        public static void ReadAddressBookFromCsvFile()
         {
-            if (AddressBookManager.WriteToFile(FileName))
+            if (File.Exists(CsvFile))
             {
-                Console.WriteLine("wrote to file");
-            }            
+                AddressBookManager.ReadFromCsvFile(CsvFile);
+            }
         }
-        private static void ReadAddressBookFromFile()
+
+        private static void WriteAddressBookToCsvFile()
         {
-            string output = AddressBookManager.ReadFile(FileName);
-            Console.WriteLine(output);
-        }
+            if (File.Exists(CsvFile))
+            {
+                AddressBookManager.WriteToCsvFile(CsvFile);
+            }  
+        }      
     }
 }

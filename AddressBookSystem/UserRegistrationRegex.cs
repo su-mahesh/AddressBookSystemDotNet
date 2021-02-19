@@ -23,13 +23,13 @@ namespace UserRegistrationNameSpace
             {
                 if (FirstName.Equals(string.Empty))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_EMPTY, "first name should not be empty");
-                if (FirstName.Any(Char.IsDigit))
+                if (FirstName.Any(char.IsDigit))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_DIGIT_IN_NAME, "first name should not contain digits");
                 if (FirstName.Length < 3)
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_LESSTHAN_MINIMUM_LENGTH, "first name should not be less than minimum length");
-                if (Char.IsLower(FirstName[0]))
+                if (char.IsLower(FirstName[0]))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_FIRST_LETTER_LOWERCASE, "first letter should not be lower case");
-                if (FirstName.Substring(1).Any(Char.IsUpper))
+                if (FirstName[1..].Any(char.IsUpper))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE, "other than first letter should not be upper case");
                 return IsValid(FirstNameRegex, FirstName);
 
@@ -45,13 +45,13 @@ namespace UserRegistrationNameSpace
             {
                 if (LastName.Equals(string.Empty))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_EMPTY, "last name should not be empty");
-                if (LastName.Any(Char.IsDigit))
+                if (LastName.Any(char.IsDigit))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_DIGIT_IN_NAME, "last name should not contain digits");
                 if (LastName.Length < 3)
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_LESSTHAN_MINIMUM_LENGTH, "last name should not be less than minimum length");
-                if (Char.IsLower(LastName[0]))
+                if (char.IsLower(LastName[0]))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_FIRST_LETTER_LOWERCASE, "first letter should not be lower case");
-                if (LastName.Substring(1).Any(Char.IsUpper))
+                if (LastName[1..].Any(char.IsUpper))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_OTHERTHAN_FIRST_LETTER_UPPERCASE, "other than first letter should not be upper case");
                 return IsValid(LastNameRegex, LastName);
             }
@@ -67,7 +67,7 @@ namespace UserRegistrationNameSpace
                 if (EmailAddress.Equals(string.Empty))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_EMPTY, "email address should not be empty");
                 string Username = EmailAddress.Substring(0, 1);
-                if (Username.Any(Char.IsPunctuation))
+                if (Username.Any(char.IsPunctuation))
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_INVALID_EMAIL_USERNAME, "email address username should not start with spacial character");
                 if (EmailAddress.Length < 6)
                     throw new UserRegistrationException(UserRegistrationException.ExceptionType.ENTERED_LESSTHAN_MINIMUM_LENGTH, "email address should not be less than minimum lengthe");

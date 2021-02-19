@@ -1,54 +1,44 @@
 Address book: default
 
 Contact no: 1
-First Name  : Jss
+First Name  : Frert
 Last Name   : Kan
 Address     : mohitewadi
 City        : pune
 State       : Mahar
-Zip         : 333444
+Zip         : 666 777
 Phone number: 91 9938888883
 Email       : dde@fe.fe
 
 Contact no: 2
-First Name  : Kddd
-Last Name   : Kan
-Address     : mohitewadi
-City        : pune
-State       : Mahar
-Zip         : 222111
-Phone number: 91 9938888883
-Email       : dde@fe.fe
-
-Contact no: 3
 First Name  : Mss
 Last Name   : Kan
 Address     : mohitewadi
 City        : pune
 State       : Mahar
-Zip         : 777777
+Zip         : 666 777
 Phone number: 91 9938888883
 Email       : dde@fe.fe
 
-Contact no: 4
-First Name  : Sdd
+Contact no: 3
+First Name  : Odee
 Last Name   : Kan
 Address     : mohitewadi
 City        : pune
 State       : Mahar
-Zip         : 222333
+Zip         : 666 777
 Phone number: 91 9938888883
 Email       : dde@fe.fe
 
 Address book: m
 
 Contact no: 1
-First Name  : Mds
+First Name  : Maaa
 Last Name   : Kan
 Address     : mohitewadi
 City        : pune
 State       : Mahar
-Zip         : 222111
+Zip         : 666 777
 Phone number: 91 9938888883
 Email       : dde@fe.fe
 
